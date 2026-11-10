@@ -87,6 +87,7 @@
     setSaveStatus(true);
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
+      saveTimer = null;
       saveNotes();
       renderNotesList();
       renderFilters();
@@ -201,18 +202,12 @@
     for (const note of filteredNotes) {
       const card = document.createElement('div');
       card.className = `note-card${note.id === activeNoteId ? ' is-active' : ''}`;
-      card.tabIndex = 0;
-      card.setAttribute('role', 'button');
+      card.setAttribute('role', 'group');
       card.setAttribute('aria-label', `Open ${displayTitle(note)}`);
       card.addEventListener('click', () => selectNote(note.id));
-      card.addEventListener('keydown', (event) => {
-        if ((event.key === 'Enter' || event.key === ' ') && event.target === card) {
-          event.preventDefault();
-          selectNote(note.id);
-        }
-      });
 
-      const title = document.createElement('span');
+      const title = document.createElement('button');
+      title.type = 'button';
       title.className = 'note-card-title';
       title.textContent = displayTitle(note);
       const excerpt = document.createElement('span');
@@ -590,6 +585,10 @@
     renderNotesList();
   });
   $('#togglePreviewButton').addEventListener('click', () => {
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      setPreviewHidden(elements.workspace.dataset.mobilePanel === 'preview');
+      return;
+    }
     const hidden = !elements.workspace.classList.contains('preview-hidden');
     setPreviewHidden(hidden);
   });
